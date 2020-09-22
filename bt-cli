@@ -1,0 +1,41 @@
+#!/usr/bin/python
+import click
+import subprocess
+
+@click.command()
+
+@click.option("--install", "-i", "component_name", required=True,
+    help="What component do you want to instal: [rcu, subsystem, cn, scanner]",)
+@click.option("--system", "-s", "sys_name", required=True,
+    help="Enter system name on which you want to operate")
+@click.option("--username", "-u", "sys_username", required=True,
+    help="Enter system user name")
+
+def provisoner(component_name, sys_name, sys_username):
+    """ 
+    Provision BT component on a system.
+    """
+    
+    print(f"Deployment of '{component_name}'' on the '{sys_name}' started....")
+    server_ip = sys_name
+    ssh = subprocess.Popen(["ssh", sys_username+"@"+server_ip],
+                        stdin =subprocess.PIPE,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        universal_newlines=True,
+                        bufsize=0)
+ 
+    # Send ssh commands to stdin
+    ssh.stdin.write("ls -altr /srv/local_manager/\n")
+    #ssh.stdin.write("top \n")
+    #more command ssh command here
+    ssh.stdin.close()
+
+    # Fetch output
+    for line in ssh.stdout:
+        print(line.strip())
+    
+
+if __name__ =="__main__":
+    provisoner()
+
